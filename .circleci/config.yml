@@ -1,3 +1,6 @@
+# https://circleci.com/gh/Un1Gfn/avx
+# while true; do sleep 7; echo $RANDOM; done
+
 version: 2
 jobs:
   build:
@@ -14,7 +17,7 @@ jobs:
           command: |
             apt update
             apt upgrade -y
-            apt install -y wget gcc tree
+            apt install -y wget gcc tree valgrind gdb vim
       - run:
           name: Stop for SSH
           command: |
