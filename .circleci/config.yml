@@ -8,12 +8,13 @@ jobs:
       # - image: ubuntu:disco # 19.04 Disco Dingo
     resource_class: medium
     steps:
+      - checkout
       - run:
           name: Prepare
           command: |
             apt update
             apt upgrade -y
-            apt install -y wget gcc
+            apt install -y wget gcc tree
       - run:
           name: Stop for SSH
           command: |
