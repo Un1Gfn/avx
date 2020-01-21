@@ -1,3 +1,5 @@
+# https://github.com/Un1Gfn/downloadsplit/blob/master/.circleci/config.yml
+
 # https://circleci.com/gh/Un1Gfn/avx
 # while true; do sleep 7; echo $RANDOM; done
 

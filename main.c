@@ -2,14 +2,14 @@
 
 // /home/darren/pdf/Computer-Organization-and-Design-The-Hardware-Software-Interface-5th-Edition-With-all-appendices-and-advanced-material.pdf
 
-// gcc -std=c11 -g -O0 -Wall -Wextra -Wno-unused-parameter -mavx main.c benchmark.c
-
 // /usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/include/x86intrin.h
-#include <x86intrin.h>
 #include <stdio.h>
 #include <sys/times.h>
 #include <string.h>
+#include <stdlib.h>
+#include <assert.h>
 #include "benchmark.h"
+#include "dgemm_avx.h"
 
 int n=0;
 double *A=NULL;
@@ -26,27 +26,6 @@ void dgemm(){
     }
 }
 
-// square n*n matrix
-// n=0,4,8,...
-void dgemm_avx(){
-  for(int i=0;i<n;i+=4){
-    for(int j=0;j<n;j++){
-      __m256d c0=_mm256_load_pd(C+i+j*n);/* c0=C[i][j] */
-      for(int k=0;k<n;k++)
-      // c0=c0+A[i][k]*B[k][j] 
-      c0=_mm256_add_pd(
-        c0,
-        _mm256_mul_pd(
-          _mm256_load_pd(A+i+k*n),
-          _mm256_broadcast_sd(B+k+j*n)
-        )
-      );
-      // C[i][j]=c0
-      _mm256_store_pd(C+i+j*n,c0);
-    }
-  }
-}
-
 void print(const double *m){
   for(int r=0;r<n;++r){
     for(int c=0;c<n;++c)
@@ -55,8 +34,14 @@ void print(const double *m){
   }
 }
 
+void printall(){
+  print(A);printf("\n");
+  print(B);printf("\n");
+  print(C);printf("\n");
+}
+
 void init(){
-  n=4;
+  // n=n0;
   A=calloc(n*n,sizeof(double));
   B=calloc(n*n,sizeof(double));
   C=calloc(n*n,sizeof(double));
@@ -83,21 +68,42 @@ void end(){
   free(C);C=NULL;
 }
 
-int main(){
+void test(int n0){
+
+  assert(n0>0);
+  assert(n0%4==0);
+  n=n0;
 
   init();
-  print(A);printf("\n");
-  print(B);printf("\n");
-  print(C);printf("\n");
+  // printall();
+
+  clearC();
+  start_clock();
+  dgemm();
+  // printf("\n");
+  end_clock("Primitive\n");
   printf("\n");
 
-  dgemm();
-  print(A);printf("\n");
-  print(B);printf("\n");
-  print(C);printf("\n");
-  printf("\n");
+  // printall();
+  // printf("\n");
+
+  // clearC();
+  // // dgemm_avx();
+  // printall();
 
   end();
+
+}
+
+int main(){
+
+  while(1){
+    printf("\n");
+    int n0=0;
+    scanf("%d",&n0);
+    n0*=4;
+    test(n0);
+  }
 
   return 0;
 }
