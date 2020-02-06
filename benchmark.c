@@ -1,15 +1,8 @@
 // benchmark.c
 
 // times(2)
-
 // times(3p)
-/* This example assumes that the result of each subtraction
-  is within the range of values that can be represented in
-  an integer type. */
 
-#include <stdint.h>
-#include <stdio.h>
-// #include <time.h> // clock_t
 #include <sys/times.h>
 
 static clock_t begin=0;
