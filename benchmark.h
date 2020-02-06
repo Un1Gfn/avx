@@ -3,7 +3,10 @@
 #ifndef BENCHMARK_H
 #define BENCHMARK_H
 
+#include <stdint.h>
+
 void start_clock();
-void end_clock(const char *msg);
+void end_clock();
+extern clock_t diff;
 
 #endif

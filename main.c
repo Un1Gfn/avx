@@ -26,21 +26,21 @@ void dgemm(){
     }
 }
 
-void print(const double *m){
-  for(int r=0;r<n;++r){
-    for(int c=0;c<n;++c)
-      printf("%f ",((double (*)[n])m)[r][c]);
-    printf("\n");
-  }
-}
+// void print(const double *m){
+//   for(int r=0;r<n;++r){
+//     for(int c=0;c<n;++c)
+//       printf("%f ",((double (*)[n])m)[r][c]);
+//     printf("\n");
+//   }
+// }
 
-void printall(){
-  print(A);printf("\n");
-  print(B);printf("\n");
-  print(C);printf("\n");
-}
+// void printall(){
+//   print(A);printf("\n");
+//   print(B);printf("\n");
+//   print(C);printf("\n");
+// }
 
-void init(){
+void resize(){
   // n=n0;
   A=calloc(n*n,sizeof(double));
   B=calloc(n*n,sizeof(double));
@@ -68,28 +68,32 @@ void end(){
   free(C);C=NULL;
 }
 
-void test(int n0){
+typedef struct{
+  clock_t noavx;
+  clock_t avx;
+}Calctime;
 
-  assert(n0>0);
+Calctime test(int n0){
+
+  if(n0==0)
+    return (Calctime){};
   assert(n0%4==0);
+
   n=n0;
+  resize();
 
-  init();
-  // printall();
-
-  clearC();
   start_clock();
   dgemm();
-  // printf("\n");
-  end_clock("Primitive\n");
-  printf("\n");
+  end_clock();
+  clock_t noavx=diff;
 
-  // printall();
-  // printf("\n");
+  clearC();
 
-  // clearC();
-  // // dgemm_avx();
-  // printall();
+  start_clock();
+  // dgemm_avx();
+  end_clock();
+
+  return (Calctime){.noavx=noavx,.avx=diff};
 
   end();
 
@@ -97,12 +101,14 @@ void test(int n0){
 
 int main(){
 
-  while(1){
-    printf("\n");
-    int n0=0;
-    scanf("%d",&n0);
-    n0*=4;
-    test(n0);
+  int xmin=0;
+  int xmax=2000;
+  int xn=20;
+
+  #define ceil(x) ((x+3)/4*4)
+  for(int x=ceil(xmin);x<=ceil(xmax);x+=(xmax-xmin+1)/xn){
+    Calctime calctime=test(x);
+    printf("%d %zu %zu\n",x,calctime.noavx,calctime.avx);
   }
 
   return 0;

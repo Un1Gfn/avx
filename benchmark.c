@@ -12,28 +12,23 @@
 // #include <time.h> // clock_t
 #include <sys/times.h>
 
-static clock_t st_time=0;
-static clock_t en_time=0;
+static clock_t begin=0;
+static clock_t end=0;
+static struct tms tms0=(struct tms){};
 
-static struct tms st_cpu=(struct tms){};
-static struct tms en_cpu=(struct tms){};
+clock_t diff=0;
 
 void start_clock(){
-  st_time=0;
-  en_time=0;
-  st_cpu=(struct tms){};
-  en_cpu=(struct tms){};
-  st_time = times(&st_cpu);
+  begin=0;
+  end=0;
+  diff=0;
+  tms0=(struct tms){};
+  begin=times(&tms0);
 }
 
-void end_clock(const char *msg)
+void end_clock()
 {
-  en_time=times(&en_cpu);
-  if(msg)
-    fputs(msg,stdout);
-  printf("Real Time: %jd, User Time %jd, System Time %jd\n",
-    (intmax_t)(en_time - st_time),
-    (intmax_t)(en_cpu.tms_utime - st_cpu.tms_utime),
-    (intmax_t)(en_cpu.tms_stime - st_cpu.tms_stime)
-  );
+  tms0=(struct tms){};
+  end=times(&tms0);
+  diff=end-begin;
 }
