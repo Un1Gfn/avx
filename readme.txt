@@ -23,3 +23,8 @@ http://plplot.sourceforge.net/examples.php?demo=00&lbind=C
 
 Example data
 https://www.displayr.com/what-is-linear-regression/
+
+Usage
+./make.sh
+./a.out run result.bin 0 1000 10
+./a.out stat result.bin

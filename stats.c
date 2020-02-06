@@ -10,14 +10,9 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_fit.h>
 #include <plplot/plplot.h>
-
-typedef struct{
-  double c0;
-  double c1;
-}Coefficients;
+#include "stats.h"
 
 Coefficients linear_regression(size_t n,double *x,double *y){
 
@@ -38,59 +33,51 @@ Coefficients linear_regression(size_t n,double *x,double *y){
 
 }
 
-int main()
-{
-
-  double x[]={
-   23,
-   26,
-   30,
-   34,
-   43,
-   48,
-   52,
-   57,
-   58
-  };
-  double y[]={
-    651,
-    762,
-    856,
-    1063,
-    1190,
-    1298,
-    1421,
-    1440,
-    1518
-  };
-  size_t n=9;
-
-  plsdev("qtwidget");
-  plsetopt("geometry","+100+100");
-  plinit();
-
-  const PLFLT xmin=20;
-  const PLFLT xmax=60;
-  const PLFLT ymin=600;
-  const PLFLT ymax=1600;
-  plenv(xmin,xmax,ymin,ymax,0,0);
-  pllab("Advertising","Sales","Scatter plot");
-
-  plpoin(n,x,y,23);
-
-  Coefficients coefficients=linear_regression(n,x,y);
-  #define y(x) (coefficients.c0+coefficients.c1*x)
-  pljoin(xmin,y(xmin),xmax,y(xmax));
-
-  plend();
-
-  return 0;
-}
-
 // int main()
 // {
-//   double x=5.0;
-//   double y=gsl_sf_bessel_J0 (x);
-//   printf("J0(%g) = %.18e\n",x,y);
+
+//   double x[]={
+//    23,
+//    26,
+//    30,
+//    34,
+//    43,
+//    48,
+//    52,
+//    57,
+//    58
+//   };
+//   double y[]={
+//     651,
+//     762,
+//     856,
+//     1063,
+//     1190,
+//     1298,
+//     1421,
+//     1440,
+//     1518
+//   };
+//   size_t n=9;
+
+//   plsdev("qtwidget");
+//   plsetopt("geometry","+100+100");
+//   plinit();
+
+//   const PLFLT xmin=20;
+//   const PLFLT xmax=60;
+//   const PLFLT ymin=600;
+//   const PLFLT ymax=1600;
+//   plenv(xmin,xmax,ymin,ymax,0,0);
+//   pllab("Advertising","Sales","Scatter plot");
+
+//   plpoin(n,x,y,23);
+
+//   Coefficients coefficients=linear_regression(n,x,y);
+//   #define y(x) (coefficients.c0+coefficients.c1*x)
+//   pljoin(xmin,y(xmin),xmax,y(xmax));
+
+//   plend();
+
 //   return 0;
 // }

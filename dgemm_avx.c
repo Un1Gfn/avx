@@ -1,5 +1,6 @@
 // dgemm_avx.c
 
+// /usr/lib/gcc/x86_64-pc-linux-gnu/9.2.0/include/x86intrin.h
 #include <x86intrin.h>
 
 extern int n;
