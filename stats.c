@@ -38,8 +38,9 @@ int main()
   double cov11=0;
   double sumsq=0;
 
+  // https://www.gnu.org/software/gsl/doc/html/lls.html#c.gsl_fit_linear
   int r=gsl_fit_linear(x,1,y,1,9,&c0,&c1,&cov00,&cov01,&cov11,&sumsq);
-  
+
   printf("%d %lf %lf\n",r,c0,c1);
   printf("%lf %lf %lf\n",cov00,cov01,cov11);
   printf("%lf\n",sumsq);
