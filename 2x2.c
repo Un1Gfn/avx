@@ -1,32 +1,9 @@
-// D=/usr/share/plplot5.15.0/examples/c
-// gcc -std=gnu11 -g -O0 -Wall -Wextra -fdiagnostics-color=always -I"$D" -lm $(pkg-config --cflags --libs plplot) 2x2.c -o 2x2.out
+// D=/usr/share/plplot5.15.0/examples/c; gcc -H -std=gnu11 -g -O0 -Wall -Wextra -fdiagnostics-color=always -I"$D" -lm $(pkg-config --cflags --libs plplot) 2x2.c -o 2x2.out
+// D=/usr/share/plplot5.15.0/examples/c; gcc -std=gnu11 -g -O0 -Wall -Wextra -fdiagnostics-color=always -I"$D" -lm $(pkg-config --cflags --libs plplot) 2x2.c -o 2x2.out
 // unset -v D
 
-//      Simple line plot and multiple windows demo.
-//
-// Copyright (C) 2004 Rafael Laboissiere
-// Copyright (C) 2000-2018 Alan W. Irwin
-//
-// This file is part of PLplot.
-//
-// PLplot is free software; you can redistribute it and/or modify
-// it under the terms of the GNU Library General Public License as published
-// by the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// PLplot is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Library General Public License for more details.
-//
-// You should have received a copy of the GNU Library General Public License
-// along with PLplot; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-//
-//
-
 #include "plcdemos.h"
-#include "plevent.h"
+#include <plplot/plevent.h>
 #ifdef PL_HAVE_NANOSLEEP
 #include <time.h>
 #endif
@@ -35,83 +12,16 @@
 #endif
 
 // Variables and data arrays used by plot generators
-
 static PLFLT        x[101], y[101];
 static PLFLT        xscale, yscale, xoff, yoff, xs[6], ys[6];
-static PLGraphicsIn gin;
-
-static int          locate_mode;
 static int          test_xor;
-static int          fontset = 1;
-static int          pl_parse_skip_mode;
-static char         *f_name = NULL;
-
-// Options data structure definition.
-
-static PLOptionTable options[] = {
-    {
-        "pl_parse_skip",
-        NULL,
-        NULL,
-        &pl_parse_skip_mode,
-        PL_OPT_BOOL,
-        "-pl_parse_skip",
-        "Test using PL_PARSE_SKIP mode for plparseopts (this option must precede non-PLplot options)"
-    },
-    {
-        "locate",               // Turns on test of API locate function
-        NULL,
-        NULL,
-        &locate_mode,
-        PL_OPT_BOOL,
-        "-locate",
-        "Turns on test of API locate function"
-    },
-    {
-        "xor",                  // Turns on test of xor function
-        NULL,
-        NULL,
-        &test_xor,
-        PL_OPT_BOOL,
-        "-xor",
-        "Turns on test of XOR"
-    },
-    {
-        "font",                 // For switching between font set 1 & 2
-        NULL,
-        NULL,
-        &fontset,
-        PL_OPT_INT,
-        "-font number",
-        "Selects stroke font set (0 or 1, def:1)"
-    },
-    {
-        "save",                 // For saving in postscript
-        NULL,
-        NULL,
-        &f_name,
-        PL_OPT_STRING,
-        "-save filename",
-        "Save plot in color postscript `file'"
-    },
-    {
-        NULL,                   // option
-        NULL,                   // handler
-        NULL,                   // client data
-        NULL,                   // address of variable to set
-        0,                      // mode flag
-        NULL,                   // short syntax
-        NULL
-    }                           // long syntax
-};
 
 PLCHAR_VECTOR        notes[] = { "Make sure you get it right!", NULL };
 
 // Function prototypes
-
-void plot1( int );
-void plot2( void );
-void plot3( void );
+void plot1(int do_test);
+void plot2();
+void plot3();
 
 //--------------------------------------------------------------------------
 // main
@@ -125,136 +35,41 @@ void plot3( void );
 //   - gridded coordinate axes
 //--------------------------------------------------------------------------
 
-int
-main( int argc, char *argv[] )
-{
-    PLINT digmax, cur_strm, new_strm;
-    char  ver[80];
-    PLINT i;
+int main(){
 
-// plplot initialization
+  PLINT digmax=0;
 
-// Parse and process command line arguments
+  // Initialize plplot
+  // Divide page into 2x2 plots
+  // Note: calling plstar replaces separate calls to plssub and plinit
+  plsdev("qtwidget");
+  plsetopt("geometry","+100+100");
+  plstar( 2, 2 );
+  plfontld( 1 );
 
-    plMergeOpts( options, "x01c options", notes );
-    // See if -pl_parse_skip has been specified without
-    // changing argc or argv
-    plparseopts( &argc, argv, PL_PARSE_NODELETE );
-    if ( pl_parse_skip_mode )
-    {
-        printf( "argv prior to call of plparseopts(..., PL_PARSE_SKIP)\n" );
-        for ( i = 0; i < argc; i++ )
-        {
-            printf( "i = %3d, argument = %s\n", i, argv[i] );
-        }
-        plparseopts( &argc, argv, PL_PARSE_SKIP );
-        printf( "argv after call to plparseopts(..., PL_PARSE_SKIP)\n" );
-        for ( i = 0; i < argc; i++ )
-        {
-            printf( "i = %3d, argument = %s\n", i, argv[i] );
-        }
-    }
-    else
-    {
-        // parse the command line again, and after such parsing
-        // argc and argv are typically reduced to 1 and the name
-        // of the programme that is being executed.
-        plparseopts( &argc, argv, PL_PARSE_FULL );
-    }
+  // Set up the data
+  // Original case
+  xscale = 6.;
+  yscale = 1.;
+  xoff   = 0.;
+  yoff   = 0.;
+  // Do a plot
+  plot1( 0 );
 
-// Get version number, just for kicks
+  // Set up the data
+  xscale = 1.;
+  yscale = 0.0014;
+  yoff   = 0.0185;
+  // Do a plot
+  digmax = 5;
+  plsyax( digmax, 0 );
+  plot1( 1 );
+  plot2();
+  plot3();
 
-    plgver( ver );
-    fprintf( stdout, "PLplot library version: %s\n", ver );
-
-// Initialize plplot
-// Divide page into 2x2 plots
-// Note: calling plstar replaces separate calls to plssub and plinit
-    plstar( 2, 2 );
-
-// Select font set as per input flag
-
-    if ( fontset )
-        plfontld( 1 );
-    else
-        plfontld( 0 );
-
-// Set up the data
-// Original case
-
-    xscale = 6.;
-    yscale = 1.;
-    xoff   = 0.;
-    yoff   = 0.;
-
-// Do a plot
-
-    plot1( 0 );
-
-// Set up the data
-
-    xscale = 1.;
-    yscale = 0.0014;
-    yoff   = 0.0185;
-
-// Do a plot
-
-    digmax = 5;
-    plsyax( digmax, 0 );
-
-    plot1( 1 );
-
-    plot2();
-
-    plot3();
-
-    //
-    // Show how to save a plot:
-    // Open a new device, make it current, copy parameters,
-    // and replay the plot buffer
-    //
-
-    if ( f_name )   // command line option '-save filename'
-
-    {
-        printf( "The current plot was saved in color Postscript under the name `%s'.\n", f_name );
-        plgstrm( &cur_strm );    // get current stream
-        plmkstrm( &new_strm );   // create a new one
-
-        plsfnam( f_name );       // file name
-        plsdev( "psc" );         // device type
-
-        plcpstrm( cur_strm, 0 ); // copy old stream parameters to new stream
-        plreplot();              // do the save by replaying the plot buffer
-        plend1();                // finish the device
-
-        plsstrm( cur_strm );     // return to previous stream
-    }
-
-// Let's get some user input
-
-    if ( locate_mode )
-    {
-        for (;; )
-        {
-            if ( !plGetCursor( &gin ) )
-                break;
-            if ( gin.keysym == PLK_Escape )
-                break;
-
-            pltext();
-            printf( "subwin = %d, wx = %f,  wy = %f, dx = %f,  dy = %f\n",
-                gin.subwindow, gin.wX, gin.wY, gin.dX, gin.dY );
-            printf( "keysym = 0x%02x, button = 0x%02x, string = '%s', type = 0x%02x, state = 0x%02x\n",
-                gin.keysym, gin.button, gin.string, gin.type, gin.state );
-            plgra();
-        }
-    }
-
-// Don't forget to call plend() to finish off!
-
-    plend();
-    exit( 0 );
+  // Clean up
+  plend();
+  exit( 0 );
 }
 
 //--------------------------------------------------------------------------

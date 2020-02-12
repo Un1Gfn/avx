@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rm -v *.o a.out
-rm -i *.dat *.bin
+rm -fv *.o *.out
+# rm -i *.dat
