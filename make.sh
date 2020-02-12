@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CC='gcc -std=c11 -g -O0 -Wall -Wextra -Wno-unused-parameter'
+CC='gcc -std=gnu11 -g -O0 -Wall -Wextra -Wno-unused-parameter'
 
 $CC -mavx -c dgemm_avx.c
 
