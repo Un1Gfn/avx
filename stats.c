@@ -38,15 +38,15 @@ void stats(const char* filename){
   Record r=(Record){};
   size_t n=0;
 
+  // https://gcc.gnu.org/onlinedocs/gcc/Typeof.html
+  // #define g_array_append_val_noref(a,v) {__typeof__(v) _v=v;g_array_append_val(a,_v);}
+  #define g_array_append_val_noref(a,v) {__auto_type _v=v;g_array_append_val(a,_v);}
+
   while(fread(&r,sizeof(Record),1,f)){
     record_show(r);
-    double tmp=0;
-    tmp=(double)r.size;
-    g_array_append_val(x,tmp);
-    tmp=cbrt((double)r.noavx);
-    g_array_append_val(y_noavx,tmp);
-    tmp=cbrt((double)r.avx);
-    g_array_append_val(y_avx,tmp);
+    g_array_append_val_noref(x,(double)r.size);
+    g_array_append_val_noref(y_noavx,cbrt((double)r.noavx));
+    g_array_append_val_noref(y_avx,cbrt((double)r.avx));
     ++n;
     r=(Record){};
   }

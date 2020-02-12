@@ -1,10 +1,10 @@
 #ifndef RECORD_H
 #define RECORD_H
 
-#include<time.h>
+#include <time.h>
 
 typedef struct{
-  int size;
+  int size; // size*size square matrix
   clock_t noavx;
   clock_t avx;
 }Record;

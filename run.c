@@ -86,4 +86,6 @@ void run(const char *filename,int xmin,int xmax,int xn){
     fflush(f);
   }
   fclose(f);
+  printf(filename);
+  printf("\n");
 }
