@@ -38,15 +38,25 @@ int main(){
 
   PLINT digmax=0;
 
-  // Initialize plplot
-  // Divide page into 2x2 plots
-  // Note: calling plstar replaces separate calls to plssub and plinit
   plsdev("xcairo");
   // plsdev("xwin");
   // plsdev("qtwidget");
+
+  // https://www.x.org/releases/X11R7.7/doc/man/man7/X.7.xhtml#heading7
+  // https://en.wikipedia.org/wiki/Display_resolution
+  plsetopt("geometry","800x600");
   // plsetopt("geometry","+100+100");
-  plstar( 2, 2 );
-  // plfontld( 0 );
+  // plsetopt("geometry","800x600+10+10");
+  // plsetopt("geometry","800x600+100+100");
+  // plsetopt("geometry","1024x768+10+10");
+  // plsetopt("geometry","1280x800");
+
+  // plstar(2,2);
+
+  plssub(2,2);
+  plinit();
+
+  // plfontld(0);
 
   // Set up the data
   // Original case
@@ -57,16 +67,23 @@ int main(){
   // Do a plot
   plot1();
 
-  // Set up the data
-  xscale = 1.;
-  yscale = 0.0014;
-  yoff   = 0.0185;
-  // Do a plot
-  digmax = 5;
-  plsyax( digmax, 0 );
   plot1();
-  plot2();
-  plot3();
+  // plot1();
+  // plot1();
+
+  plend();
+  exit(0);
+
+  // Set up the data
+  // xscale = 1.;
+  // yscale = 0.0014;
+  // yoff   = 0.0185;
+  // // Do a plot
+  // digmax = 5;
+  // plsyax( digmax, 0 );
+  // plot1();
+  // plot2();
+  // plot3();
 
   // Clean up
   plend();
@@ -75,8 +92,7 @@ int main(){
 
 //--------------------------------------------------------------------------
 
-void
-plot1(){
+void plot1(){
   int   i;
   PLFLT xmin, xmax, ymin, ymax;
 
@@ -99,18 +115,20 @@ plot1(){
   // 0.0 to 6.0, and the range in Y is 0.0 to 30.0. The axes are
   // scaled separately (just = 0), and we just draw a labelled
   // box (axis = 0).
-  plcol0( 1 );
+  // plcol0( 1 );
   plenv( xmin, xmax, ymin, ymax, 0, 0 );
-  plcol0( 2 );
+  // plcol0( 2 );
   pllab( "(x)", "(y)", "#frPLplot Example 1 - y=x#u2" );
 
   // Plot the data points
-  plcol0( 4 );
+  // plcol0( 4 );
   plpoin( 6, xs, ys, 9 );
 
   // Draw the line through the data
-  plcol0( 3 );
+  // plcol0( 3 );
   plline( 60, x, y );
+
+  plenv( xmin, xmax, ymin, ymax, 0, 0 );
 
 }
 

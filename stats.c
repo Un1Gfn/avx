@@ -8,6 +8,16 @@
 #include <math.h> // cbrt
 #include "record.h"
 
+// #define g_array_append_val_noref(a,v) {__typeof__(v) _v=v;g_array_append_val(a,_v);}
+#define g_array_append_val_noref(a,v) {__auto_type _v=v;g_array_append_val(a,_v);}
+#define index_double(a,i) g_array_index(a,double,i)
+#define g_array_new_double() g_array_new(FALSE,TRUE,sizeof(double))
+#define g_array_sized_new_double(reserved_size) g_array_sized_new(FALSE,TRUE,sizeof(double),reserved_size)
+#define g_array_free_dealloc(array) g_array_free(array,TRUE)
+
+GArray *x=NULL;
+// size_t n=0;
+
 // https://www.gnu.org/software/gsl/doc/html/lls.html#c.gsl_fit_linear
 // Y=c0+c1*X
 typedef struct{
@@ -15,7 +25,7 @@ typedef struct{
   double c1;
 }Coefficients;
 
-static Coefficients linear_regression(size_t n,double *x,double *y){
+static Coefficients linear_regression(double *y_cbrt){
   double c0=0;
   double c1=0;
   double cov00=0;
@@ -23,61 +33,85 @@ static Coefficients linear_regression(size_t n,double *x,double *y){
   double cov11=0;
   double sumsq=0;
   // https://www.gnu.org/software/gsl/doc/html/lls.html#c.gsl_fit_linear
-  assert(gsl_fit_linear(x,1,y,1,n,&c0,&c1,&cov00,&cov01,&cov11,&sumsq)==0);
+  assert(gsl_fit_linear((double*)x->data,1,y_cbrt,1,x->len,&c0,&c1,&cov00,&cov01,&cov11,&sumsq)==0);
   return (Coefficients){c0,c1};
+}
+
+static void plot2(const GArray* const y,const char *tlabel){
+
+  // Cube roots
+  GArray *y_cbrt=g_array_sized_new_double(y->len);
+  for(guint i=0;i<y->len;++i)
+    g_array_append_val_noref(y_cbrt,cbrt(index_double(y,i)));
+
+  // Regression coefficients
+  Coefficients coefficients=linear_regression((double*)(y_cbrt->data));
+  #define y(x) (coefficients.c0+coefficients.c1*x)
+
+  const PLFLT xmin=index_double(x,0)*0.95;
+  const PLFLT xmax=index_double(x,x->len-1)*1.05;
+
+  // Cubic
+  plenv(
+    xmin,
+    xmax,
+    /*ymin*/ (PLFLT) index_double(y,0)*0.95,
+    /*ymax*/ (PLFLT) index_double(y,y->len-1)*1.05,
+    /*just*/ 0,
+    /*axis*/ 0
+  );
+  pllab("matrix size","ticks",tlabel);
+  plpoin(x->len,(double*)x->data,(double*)y->data,23);
+
+  // Linear
+  plenv(
+    xmin,
+    xmax,
+    /*ymin*/ (PLFLT) index_double(y_cbrt,0),
+    // /*ymax*/ (PLFLT) index_double(y,y->len-1)*1.05,
+    // /*ymax*/ (PLFLT) index_double(y_cbrt,x->len-1)*1.05,
+    /*ymax*/ (PLFLT) index_double(y_cbrt,y_cbrt->len-1)*1.05,
+    /*just*/ 0,
+    /*axis*/ 0
+  );
+  pllab("matrix size","cube root of ticks",tlabel);
+  plpoin(x->len,(double*)x->data,(double*)y_cbrt->data,23);
+  pljoin(xmin,y(xmin),xmax,y(xmax));
+
+  g_array_free_dealloc(y_cbrt);
+
 }
 
 void stats(const char* filename){
 
   // Init
-  GArray *x=g_array_new(FALSE,TRUE,sizeof(double));
-  GArray *y_noavx=g_array_new(FALSE,TRUE,sizeof(double));
-  GArray *y_avx=g_array_new(FALSE,TRUE,sizeof(double));
+  x=g_array_new_double();
+  GArray *y_noavx=g_array_new_double();
+  GArray *y_avx=g_array_new_double();
   Record r=(Record){};
-  size_t n=0;
-  plsdev("qtwidget");
+  plsdev("xcairo");
   plsetopt("geometry","+100+100");
+  plssub(2,2);
   plinit();
 
   // https://gcc.gnu.org/onlinedocs/gcc/Typeof.html
-  // #define g_array_append_val_noref(a,v) {__typeof__(v) _v=v;g_array_append_val(a,_v);}
-  #define g_array_append_val_noref(a,v) {__auto_type _v=v;g_array_append_val(a,_v);}
   FILE *f=fopen(filename,"rb");
   while(fread(&r,sizeof(Record),1,f)){
     record_show(r);
     g_array_append_val_noref(x,(double)r.size);
-    g_array_append_val_noref(y_noavx,cbrt((double)r.noavx));
-    g_array_append_val_noref(y_avx,cbrt((double)r.avx));
-    ++n;
+    g_array_append_val_noref(y_noavx,(double)r.noavx);
+    g_array_append_val_noref(y_avx,(double)r.avx);
+    // ++n;
     r=(Record){};
   }
 
-  // Set boundaries & labels
-  #define index(a,i) g_array_index(a,double,i)
-  const PLFLT xmin=index(x,0);
-  const PLFLT xmax=index(x,x->len-1)*1.05;
-  plenv(
-    xmin,
-    xmax,
-    /*ymin*/ (PLFLT) index(y_noavx,0),
-    /*ymax*/ (PLFLT) index(y_noavx,y_noavx->len-1)*1.05,
-    /*just*/ 0,
-    /*axis*/ 0
-  );
-  pllab("n*n","cube root of ticks","noavx");
-
-  // Place dots
-  plpoin(n,(double*)x->data,(double*)y_noavx->data,23);
-
-  // Draw regression line
-  Coefficients coefficients=linear_regression(n,(double*)(x->data),(double*)(y_noavx->data));
-  #define y(x) (coefficients.c0+coefficients.c1*x)
-  pljoin(xmin,y(xmin),xmax,y(xmax));
+  plot2(y_noavx,"noavx");
+  // plot2(y_avx,"avx");
 
   // Cleanup
-  g_array_free(x,TRUE);
-  g_array_free(y_noavx,TRUE);
-  g_array_free(y_avx,TRUE);
+  g_array_free_dealloc(x);
+  g_array_free_dealloc(y_noavx);
+  g_array_free_dealloc(y_avx);
   plend();
 
 }
