@@ -1,6 +1,5 @@
 // D=/usr/share/plplot5.15.0/examples/c; gcc -H -std=gnu11 -g -O0 -Wall -Wextra -fdiagnostics-color=always -I"$D" -lm $(pkg-config --cflags --libs plplot) 2x2.c -o 2x2.out
-// D=/usr/share/plplot5.15.0/examples/c; gcc -std=gnu11 -g -O0 -Wall -Wextra -fdiagnostics-color=always -I"$D" -lm $(pkg-config --cflags --libs plplot) 2x2.c -o 2x2.out
-// unset -v D
+// D=/usr/share/plplot5.15.0/examples/c; gcc -std=gnu11 -g -O0 -Wall -Wextra -fdiagnostics-color=always -I"$D" -lm $(pkg-config --cflags --libs plplot) 2x2.c -o 2x2.out; unset -v D
 
 #include "plcdemos.h"
 #include <plplot/plevent.h>
@@ -50,6 +49,7 @@ int main(){
   // plsetopt("geometry","800x600+100+100");
   // plsetopt("geometry","1024x768+10+10");
   // plsetopt("geometry","1280x800");
+  // plsetopt("geometry","4096x3200");
 
   // plstar(2,2);
 
@@ -67,23 +67,16 @@ int main(){
   // Do a plot
   plot1();
 
-  plot1();
-  // plot1();
-  // plot1();
-
-  plend();
-  exit(0);
-
   // Set up the data
-  // xscale = 1.;
-  // yscale = 0.0014;
-  // yoff   = 0.0185;
-  // // Do a plot
-  // digmax = 5;
-  // plsyax( digmax, 0 );
-  // plot1();
-  // plot2();
-  // plot3();
+  xscale = 1.;
+  yscale = 0.0014;
+  yoff   = 0.0185;
+  // Do a plot
+  digmax = 5;
+  plsyax( digmax, 0 );
+  plot1();
+  plot2();
+  plot3();
 
   // Clean up
   plend();
@@ -127,8 +120,6 @@ void plot1(){
   // Draw the line through the data
   // plcol0( 3 );
   plline( 60, x, y );
-
-  plenv( xmin, xmax, ymin, ymax, 0, 0 );
 
 }
 
