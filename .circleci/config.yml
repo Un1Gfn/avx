@@ -23,6 +23,8 @@ jobs:
           name: Prepare
           command: |
 
+            export DEBIAN_FRONTEND=noninteractive
+
             apt-get -q update
             apt-get -q --yes --force-yes upgrade
 
