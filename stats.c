@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <gsl/gsl_fit.h> // gsl_fit_linear
 #include <plplot/plplot.h>
-#include <gmodule.h> // GArray
+#include <glib-2.0/gmodule.h> // GArray
 #include <math.h> // cbrt
 #include "record.h"
 
