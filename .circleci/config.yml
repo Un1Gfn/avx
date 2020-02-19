@@ -23,17 +23,17 @@ jobs:
           name: Prepare
           command: |
 
-            apt-get -qq update
-            apt-get -qq --yes --force-yes upgrade
+            apt-get -q update
+            apt-get -q --yes --force-yes upgrade
 
             # Either git or ssh (required by git to clone through SSH) is not installed in the image. Falling back to CircleCI's native git client but the behavior may be different from official git. If this is an issue, please use an image that has official git and ssh installed.
-            apt-get -qq --yes --force-yes install \
-              git openssh-client gcc              \
-              wget tree valgrind gdb vim          \
-              pkg-config                          \
-              libglib2.0-dev libglib2.0-0         \
-              libgsl-dev libgsl23                 \
-              libplplot-dev libplplot16           \
+            apt-get -q --yes --force-yes install \
+              git openssh-client gcc             \
+              wget tree valgrind gdb vim         \
+              pkg-config                         \
+              libglib2.0-dev libglib2.0-0        \
+              libgsl-dev libgsl23                \
+              libplplot-dev libplplot16          \
 
 
       - checkout # github -> /root/project
