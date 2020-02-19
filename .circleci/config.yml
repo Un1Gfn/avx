@@ -32,6 +32,9 @@ jobs:
       - run:
           name: Build and run
           command: |
+            echo $WD
+            tree -aC ~
+            exit 1
             cd $WD
             ./clean.sh || true
             rm -fv result* || true
