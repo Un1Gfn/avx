@@ -23,3 +23,23 @@ http://plplot.org/
 http://plplot.sourceforge.net/
 https://sourceforge.net/projects/plplot/
 http://plplot.sourceforge.net/examples.php?demo=00&lbind=C
+
+
+export port=64535
+export ip=3.94.168.198
+proxychains ssh -p $port $ip
+
+proxychains ssh -p $port $ip bash <<<'cd /root/project/; rm -rf ..?* .[!.]* *'; proxychains scp -rp -P $port /home/darren/avx/*.{c,h,sh} root@3.94.168.198:/root/project/
+
+gdb --args ./a.out run 0 1000 10
+
+set confirm off
+break dgemm_avx.c:16
+run
+
+print C
+print i
+print j
+print n
+
+malloc_usable_size()

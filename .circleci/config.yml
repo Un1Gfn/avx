@@ -7,27 +7,21 @@
 
 
 # https://circleci.com/server/changelog/
-version: 3
-# version: 2
-# version: 2.19.00
-
+version: 2
 jobs:
   build:
     # working_directory: /root/project # default
     docker:
       - image: ubuntu:eoan # 19.10 Eoan Ermine
-    resource_class: small
+    # resource_class: small # Intel(R) Xeon(R) Platinum 8124M CPU @ 3.00GHz
+    resource_class: medium
     steps:
 
-      # - run:
-      #     name: Stop for SSH
-      #     command: |
-      #       false
       - run:
           name: Prepare
           command: |
 
-            alias apt-get='env DEBIAN_FRONTEND=noninteractive apt-get -q --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
+            alias apt-get='env DEBIAN_FRONTEND=noninteractive apt-get -q --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
 
             apt-get update
             apt-get upgrade
@@ -43,19 +37,25 @@ jobs:
 
       # Either git or ssh (required by git to clone through SSH) is not installed in the image. Falling back to CircleCI's native git client but the behavior may be different from official git. If this is an issue, please use an image that has official git and ssh installed.
       - checkout # github -> /root/project
-      - run:
-          name: Build and run
-          command: | # runs in /root/project
-            tree -aC ~
-            ./clean.sh || true
-            rm -fv result* || true
-            ./make.sh && env AVX=1 ./a.out run 0 1000 10
-            # ./make.sh && env AVX=1 ./a.out run 0 2000 20
-            # mkdir -v ~/result
-            # mv -v result* ~/result
-            tree -aC ~
 
-      - store_artifacts:
-          # https://circleci.com/docs/2.0/artifacts/#artifacts-overview
-          path: /root/project/result*
-          destination: result
+      - run:
+          name: Stop for SSH
+          command: |
+            false
+
+      # - run:
+      #     name: Build and run
+      #     command: | # runs in /root/project
+      #       tree -aC ~
+      #       ./clean.sh || true
+      #       rm -fv result* || true
+      #       ./make.sh && env AVX=1 ./a.out run 0 1000 10
+      #       # ./make.sh && env AVX=1 ./a.out run 0 2000 20
+      #       # mkdir -v ~/result
+      #       # mv -v result* ~/result
+      #       tree -aC ~
+
+      # - store_artifacts:
+      #     # https://circleci.com/docs/2.0/artifacts/#artifacts-overview
+      #     path: /root/project/result*
+      #     destination: result

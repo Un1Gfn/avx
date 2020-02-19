@@ -5,6 +5,7 @@
 #include <stdio.h> // fwrite()
 #include <string.h> // memset()
 #include <signal.h>
+#include <malloc.h>
 #include "dgemm_avx.h"
 #include "benchmark.h"
 #include "record.h"
@@ -121,6 +122,5 @@ void run(const char *fn,int xmin,int xmax,int xn){
   }
   fclose(f);
   f=NULL;
-  printf(filename);
-  printf("\n");
+  printf("%s\n",filename);
 }
