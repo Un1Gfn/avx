@@ -81,15 +81,19 @@ static Record test(int n0){
 
   clear_C();
 
+  static int warned=0;
   if(getenv("AVX")||getenv("avx")){
     // Remote execution
+    if(!warned){
+      printf("$AVX or $avx detected - bringing up dgemm_avx()\n");
+      warned=1;
+    }
     start_clock();
     dgemm_avx();
     end_clock();
     r.avx=diff;
   }else{
     // Simulate
-    static int warned=0;
     if(!warned){
       printf("simulation ongoing - please set environment variable $AVX or $avx\n");
       warned=1;

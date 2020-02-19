@@ -1,17 +1,22 @@
 # https://github.com/Un1Gfn/downloadsplit/blob/master/.circleci/config.yml
+# https://github.com/Un1Gfn/walleyeboot/blob/master/.circleci/config.yml
+# https://github.com/Un1Gfn/SSD-ci/blob/master/.circleci/config.yml
 
 # https://circleci.com/gh/Un1Gfn/avx
 # while true; do sleep 7; echo $RANDOM; done
 
-version: 2
+
+# https://circleci.com/server/changelog/
+version: 3
+# version: 2
+# version: 2.19.00
+
 jobs:
   build:
-    environment:
-    working_directory: ~/code
+    working_directory: ~/$CIRCLE_PROJECT_REPONAME
     docker:
       - image: ubuntu:eoan # 19.10 Eoan Ermine
-      # - image: ubuntu:disco # 19.04 Disco Dingo
-    resource_class: medium
+    resource_class: small
     steps:
       - checkout
       - run:
@@ -20,13 +25,19 @@ jobs:
             apt update
             apt upgrade -y
             apt install -y wget gcc tree valgrind gdb vim
+      # - run:
+      #     name: Stop for SSH
+      #     command: |
+      #       false
       - run:
-          name: Stop for SSH
+          name: Build and run
           command: |
-            false
-          # no_output_timeout: 30m
-          # no_output_timeout: 1.5h
-      # - store_artifacts:
-      #     # https://circleci.com/docs/2.0/artifacts/#artifacts-overview
-      #     path: ~/split/
-      #     destination: split
+            cd $WD
+            ./clean.sh || true
+            rm -fv result* || true
+            ./make.sh && env AVX=1 ./a.out run 0 1000 10
+            # ./make.sh && env AVX=1 ./a.out run 0 2000 20
+      - store_artifacts:
+          # https://circleci.com/docs/2.0/artifacts/#artifacts-overview
+          path: $WD/result*
+          destination: result
