@@ -8,12 +8,16 @@
 #include <stdio.h> // HINT
 #include <stdlib.h> // atoi()
 #include <string.h> // strcmp
+#include <signal.h>
+// #include <assert.h>
 #include "stats.h"
 #include "run.h"
 
 #define HINT {printf("\n  %s run begin[0] end[1000] n[10]\n  %s stats <*.bin>\n\n",argv[0],argv[0]);exit(1);}
 
 int main(int argc,char *argv[]){
+
+  signal(SIGILL,handler);
 
   if(argc<2)
     HINT;

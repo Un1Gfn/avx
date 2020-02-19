@@ -16,8 +16,8 @@
 #define g_array_free_dealloc(array) g_array_free(array,TRUE)
 #define margin 0.05
 
-GArray *x=NULL;
-PLINT len=0;
+static const double *x=NULL;
+static PLINT len=0;
 
 // https://www.gnu.org/software/gsl/doc/html/lls.html#c.gsl_fit_linear
 // Y=c0+c1*X
@@ -34,52 +34,49 @@ static Coefficients linear_regression(double *y_cbrt){
   double cov11=0;
   double sumsq=0;
   // https://www.gnu.org/software/gsl/doc/html/lls.html#c.gsl_fit_linear
-  assert(gsl_fit_linear((double*)x->data,1,y_cbrt,1,x->len,&c0,&c1,&cov00,&cov01,&cov11,&sumsq)==0);
+  assert(gsl_fit_linear(x,1,y_cbrt,1,len,&c0,&c1,&cov00,&cov01,&cov11,&sumsq)==0);
   return (Coefficients){c0,c1};
 }
 
-static void plot2(const GArray* const y,const char *tlabel){
+static void plot2(const double* const y,const char *tlabel){
 
   // Cube roots
-  // GArray *y_cbrt=g_array_sized_new_double(y->len);
-  // for(guint i=0;i<y->len;++i)
-  //   g_array_append_val_noref(y_cbrt,cbrt(index_double(y,i)));
   double y_cbrt[len];
   memset(y_cbrt,0,len*sizeof(double));
   for(PLINT i=0;i<len;++i)
-    y_cbrt[i]=cbrt(index_double(y,i));
+    y_cbrt[i]=cbrt(y[i]);
 
   // Regression coefficients
   Coefficients coefficients=linear_regression(y_cbrt);
   #define hat_cbrt(x) (coefficients.c0+coefficients.c1*x)
   #define hat(x) (hat_cbrt(x)*hat_cbrt(x)*hat_cbrt(x))
 
-  const PLFLT xmin=index_double(x,0)*(1.0-margin);
-  const PLFLT xmax=index_double(x,len-1)*(1.0+margin);
+  const PLFLT xmin=x[0]*(1.0-margin);
+  const PLFLT xmax=x[len-1]*(1.0+margin);
 
   // Cubic
   plenv(
     xmin,
     xmax,
-    /*ymin*/ (PLFLT) index_double(y,0)*(1.0-margin),
-    /*ymax*/ (PLFLT) index_double(y,len-1)*(1.0+margin),
+    /*ymin*/ (PLFLT) y[0]*(1.0-margin),
+    /*ymax*/ (PLFLT) y[len-1]*(1.0+margin),
     /*just*/ 0,
     /*axis*/ 0
   );
   pllab("matrix size","ticks",tlabel);
-  plpoin(len,(double*)x->data,(double*)y->data,23);
+  plpoin(len,x,y,23);
   // y_hat=(c0+c1*x)^3
   double y_hat[len];
   memset(y_hat,0,len*sizeof(double));
   for(PLINT i=0;i<len;++i){
-    y_hat[i]=hat(index_double(x,i));
+    y_hat[i]=hat(x[i]);
     // printf("%lf %lf\n",hat_cbrt(index_double(x,i)),hat(index_double(x,i)));
   }
   // plcol0( 3 );
   // plwidth(2);
-  pljoin(xmin,hat(xmin),index_double(x,0),y_hat[0]);
-  plline(len,(double*)x->data,y_hat);
-  pljoin(index_double(x,len-1),y_hat[len-1],xmax,hat(xmax));
+  pljoin(xmin,hat(xmin),x[0],y_hat[0]);
+  plline(len,x,y_hat);
+  pljoin(x[len-1],y_hat[len-1],xmax,hat(xmax));
   // plpoin(len,(double*)x->data,y_hat,23);
 
   // Linear
@@ -92,7 +89,7 @@ static void plot2(const GArray* const y,const char *tlabel){
     /*axis*/ 0
   );
   pllab("matrix size","cube root of ticks",tlabel);
-  plpoin(len,(double*)x->data,y_cbrt,23);
+  plpoin(len,x,y_cbrt,23);
   pljoin(xmin,hat_cbrt(xmin),xmax,hat_cbrt(xmax));
 
 }
@@ -100,7 +97,7 @@ static void plot2(const GArray* const y,const char *tlabel){
 void stats(const char* filename){
 
   // Init
-  x=g_array_new_double();
+  GArray *x0=g_array_new_double();
   GArray *y_noavx=g_array_new_double();
   GArray *y_avx=g_array_new_double();
   Record r=(Record){};
@@ -109,22 +106,26 @@ void stats(const char* filename){
   plssub(2,2);
   plinit();
 
+  // Read file
   // https://gcc.gnu.org/onlinedocs/gcc/Typeof.html
   FILE *f=fopen(filename,"rb");
   while(fread(&r,sizeof(Record),1,f)){
     // record_show(r);
-    g_array_append_val_noref(x,(double)r.size);
+    g_array_append_val_noref(x0,(double)r.size);
     g_array_append_val_noref(y_noavx,(double)r.noavx);
     g_array_append_val_noref(y_avx,(double)r.avx);
     r=(Record){};
   }
-  len=x->len;
+  len=x0->len;
+  x=(double*)x0->data;
 
-  plot2(y_noavx,"noavx");
-  // plot2(y_avx,"avx");
+  plot2((double*)y_noavx->data,"noavx");
+  plot2((double*)y_avx->data,"avx");
 
   // Cleanup
-  g_array_free_dealloc(x);
+  x=NULL;
+  len=0;
+  g_array_free_dealloc(x0);
   g_array_free_dealloc(y_noavx);
   g_array_free_dealloc(y_avx);
   plend();
