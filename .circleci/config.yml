@@ -19,32 +19,30 @@ jobs:
     resource_class: small
     steps:
 
-      - run:
-          name: Prepare
-          command: |
-
-            export DEBIAN_FRONTEND=noninteractive
-
-            apt-get -q update
-            apt-get -q --yes --force-yes upgrade
-
-            # Either git or ssh (required by git to clone through SSH) is not installed in the image. Falling back to CircleCI's native git client but the behavior may be different from official git. If this is an issue, please use an image that has official git and ssh installed.
-            apt-get -q --yes --force-yes install \
-              git openssh-client gcc             \
-              wget tree valgrind gdb vim         \
-              pkg-config                         \
-              libglib2.0-dev libglib2.0-0        \
-              libgsl-dev libgsl23                \
-              libplplot-dev libplplot16          \
-
-
-      - checkout # github -> /root/project
-
       # - run:
       #     name: Stop for SSH
       #     command: |
       #       false
+      - run:
+          name: Prepare
+          command: |
 
+            alias apt-get='env DEBIAN_FRONTEND=noninteractive apt-get -q --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
+
+            apt-get update
+            apt-get upgrade
+
+            apt-get install               \
+              git openssh-client          \
+              wget tree valgrind gdb vim  \
+              gcc pkg-config              \
+              libglib2.0-dev libglib2.0-0 \
+              libgsl-dev                  \
+              libplplot-dev
+              # libplplot16
+
+      # Either git or ssh (required by git to clone through SSH) is not installed in the image. Falling back to CircleCI's native git client but the behavior may be different from official git. If this is an issue, please use an image that has official git and ssh installed.
+      - checkout # github -> /root/project
       - run:
           name: Build and run
           command: | # runs in /root/project
