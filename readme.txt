@@ -25,11 +25,16 @@ https://sourceforge.net/projects/plplot/
 http://plplot.sourceforge.net/examples.php?demo=00&lbind=C
 
 
-export port=64535
-export ip=3.94.168.198
+export port=64537
+export ip=54.175.250.2
 proxychains ssh -p $port $ip
 
-proxychains ssh -p $port $ip bash <<<'cd /root/project/; rm -rf ..?* .[!.]* *'; proxychains scp -rp -P $port /home/darren/avx/*.{c,h,sh} root@3.94.168.198:/root/project/
+# https://unix.stackexchange.com/questions/77127/rm-rf-all-files-and-all-hidden-files-without-error
+proxychains ssh -p $port $ip bash <<<'cd /root/project/; rm -rf ..?* .[!.]* *'; proxychains scp -rp -P $port /home/darren/avx/*.{c,h,sh} root@$ip:/root/project/
+
+proxychains scp -rp -P $port /home/darren/avx/run.c root@$ip:/root/project/
+
+proxychains scp -rp -P $port /home/darren/avx/main.c root@$ip:/root/project/
 
 gdb --args ./a.out run 0 1000 10
 
@@ -43,3 +48,5 @@ print j
 print n
 
 malloc_usable_size()
+
+
