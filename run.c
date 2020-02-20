@@ -5,15 +5,15 @@
 #include <stdio.h> // fwrite()
 #include <string.h> // memset()
 #include <signal.h>
-#include <malloc.h>
+// #include <malloc.h> // malloc_usable_size()
 #include "dgemm_avx.h"
 #include "benchmark.h"
 #include "record.h"
 
-int n=0;
-double *A=NULL;
-double *B=NULL;
-double *C=NULL;
+extern int n;
+extern double *A;
+extern double *B;
+extern double *C;
 
 static FILE *f=NULL;
 static char filename[100]={};
