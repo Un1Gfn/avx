@@ -28,9 +28,13 @@ static void dgemm(){
 }
 
 static void build_AB_init_C(){
-  A=calloc(n*n,sizeof(double));
-  B=calloc(n*n,sizeof(double));
-  C=calloc(n*n,sizeof(double));
+  #define alloc(P) {\
+    P=aligned_alloc(32,(n*n)*sizeof(double)); \
+    memset(P,0,(n*n)*sizeof(double)); \
+  }
+  alloc(A);
+  alloc(B);
+  alloc(C);
   int val=0;
   for(int i=0;i<2;++i){
     for(int r=0;r<n;++r){
