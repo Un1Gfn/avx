@@ -21,15 +21,16 @@ jobs:
           name: Prepare
           command: |
 
-            # alias apt-get='apt-get -q --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
 
             export DEBIAN_FRONTEND=noninteractive
-            export pkg='apt-get -q --yes --force-yes'
+            # alias doesn't work
+            # export pkg='apt-get -q --yes --force-yes'
+            export pkg='apt-get -q --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
 
             $pkg update
             $pkg upgrade
 
-            $pkg install               \
+            $pkg install                  \
               git openssh-client          \
               wget tree valgrind gdb vim  \
               gcc pkg-config              \

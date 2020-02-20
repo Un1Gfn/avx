@@ -30,12 +30,13 @@ int main(int argc,char *argv[]){
     #define FN 100
     char filename[FN]={};
     snprintf(filename,FN,"result_%s_%s_%s.bin",argv[2],argv[3],argv[4]);
-    run(
-      filename,
-      atoi(argv[2]),
-      atoi(argv[3]),
-      atoi(argv[4])
-    );
+    test(0);
+    // run(
+    //   filename,
+    //   atoi(argv[2]),
+    //   atoi(argv[3]),
+    //   atoi(argv[4])
+    // );
     return 0;
   }
 
