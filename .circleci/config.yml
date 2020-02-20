@@ -21,14 +21,15 @@ jobs:
           name: Prepare
           command: |
 
-            export DEBIAN_FRONTEND=noninteractive
             # alias apt-get='apt-get -q --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
-            alias apt-get='apt-get -q --yes --force-yes'
 
-            apt-get update
-            apt-get upgrade
+            export DEBIAN_FRONTEND=noninteractive
+            export pkg='apt-get -q --yes --force-yes'
 
-            apt-get install               \
+            $pkg update
+            $pkg upgrade
+
+            $pkg install               \
               git openssh-client          \
               wget tree valgrind gdb vim  \
               gcc pkg-config              \
