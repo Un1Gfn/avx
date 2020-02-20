@@ -21,8 +21,9 @@ jobs:
           name: Prepare
           command: |
 
-            # alias apt-get='env DEBIAN_FRONTEND=noninteractive apt-get -q --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
-            alias apt-get='env DEBIAN_FRONTEND=noninteractive apt-get -q --yes --force-yes'
+            export DEBIAN_FRONTEND=noninteractive
+            # alias apt-get='apt-get -q --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
+            alias apt-get='apt-get -q --yes --force-yes'
 
             apt-get update
             apt-get upgrade
