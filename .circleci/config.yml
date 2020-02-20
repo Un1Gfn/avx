@@ -20,16 +20,12 @@ jobs:
       - run:
           name: Prepare
           command: |
-
-
             export DEBIAN_FRONTEND=noninteractive
             # alias doesn't work
             # export pkg='apt-get -q --yes --force-yes'
             export pkg='apt-get -q --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages --allow-unauthenticated'
-
             $pkg update
             $pkg upgrade
-
             $pkg install                  \
               git openssh-client          \
               wget tree valgrind gdb vim  \
@@ -41,24 +37,26 @@ jobs:
       # Either git or ssh (required by git to clone through SSH) is not installed in the image. Falling back to CircleCI's native git client but the behavior may be different from official git. If this is an issue, please use an image that has official git and ssh installed.
       - checkout # github -> /root/project
 
-      - run:
-          name: Stop for SSH
-          command: |
-            false
-
       # - run:
-      #     name: Build and run
-      #     command: | # runs in /root/project
-      #       tree -aC ~
-      #       ./clean.sh || true
-      #       rm -fv result* || true
-      #       ./make.sh && env AVX=1 ./a.out run 0 1000 10
-      #       # ./make.sh && env AVX=1 ./a.out run 0 2000 20
-      #       # mkdir -v ~/result
-      #       # mv -v result* ~/result
-      #       tree -aC ~
+      #     name: Stop for SSH
+      #     command: |
+      #       false
 
-      # - store_artifacts:
-      #     # https://circleci.com/docs/2.0/artifacts/#artifacts-overview
-      #     path: /root/project/result*
-      #     destination: result
+      - run:
+          name: Build and run
+          command: | # runs in /root/project
+            # tree -aC ~
+            ./clean.sh || true
+            rm -fv result* || true
+            ./make.sh && env AVX=1 ./a.out run 0 1000 10
+            # ./make.sh && env AVX=1 ./a.out run 0 2000 20
+            # mkdir -v ~/result
+            # mv -v result* ~/result
+            # tree -aC ~
+            mkdir result
+            mv -fv result_* result/ || true
+
+      - store_artifacts:
+          # https://circleci.com/docs/2.0/artifacts/#artifacts-overview
+          path: /root/project/result
+          destination: result
