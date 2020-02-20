@@ -1,11 +1,56 @@
+// gcc -std=gnu11 -g -O0 -Wall -Wextra -Wno-unused-parameter -mavx test.c
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <x86intrin.h>
+#include <string.h>
+
 void f(){
-  double *H=calloc(4096,sizeof(double));
-  __m256d c0 = _mm256_load_pd(H);
-  free(H);
+
+  // double *H=calloc(4096,sizeof(double));
+
+  // https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_load_pd&expand=3323
+  // Load 256-bits (composed of 4 packed double-precision (64-bit) floating-point elements)
+  // dst. mem_addr must be aligned on a 32-byte boundary or a general-protection exception may be generated.
+
+  #define zero(p) memset(p,0,sizeof(double)*4)
+  #define alloc aligned_alloc(32,sizeof(double)*4)
+
+  double *a=alloc;
+  zero(a);
+  a[0]=1.;
+  a[1]=2.;
+  a[2]=3.;
+  a[3]=4.;
+  __m256d A=_mm256_load_pd(a);
+
+  double *b=alloc;
+  zero(b);
+  b[0]=5.;
+  b[1]=6.;
+  b[2]=7.;
+  b[3]=8.;
+  __m256d B=_mm256_load_pd(b);
+
+  __m256d S=_mm256_add_pd(A,B);
+  double *s=alloc;
+  zero(s);
+  _mm256_store_pd(s,S);
+
+  printf("%lf %lf %lf %lf\n",
+    s[0],
+    s[1],
+    s[2],
+    s[3]
+  );
+
+  free(a);
+  free(b);
+  free(s);
+  a=b=s=NULL;
+
 }
+
 int main(int argc,char *argv[]){
   fopen("somefile","wb");
   for(int x=0;x<1;++x){
@@ -13,49 +58,3 @@ int main(int argc,char *argv[]){
   }
   return 0;
 }
-
-// $ cat /etc/lsb-release 
-// DISTRIB_ID=Ubuntu
-// DISTRIB_RELEASE=19.10
-// DISTRIB_CODENAME=eoan
-// DISTRIB_DESCRIPTION="Ubuntu 19.10"
-
-// $ uname -a
-// Linux d7e0ebba12c0 4.15.0-1052-aws #54-Ubuntu SMP Tue Oct 1 15:43:26 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
-
-// $ gcc --version
-// gcc (Ubuntu 9.2.1-9ubuntu2) 9.2.1 20191008
-// Copyright (C) 2019 Free Software Foundation, Inc.
-// This is free software; see the source for copying conditions.  There is NO
-// warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-// $ gcc -std=gnu11 -g -O0 -Wall -Wextra -Wno-unused-parameter -mavx test.c
-
-// $ valgrind ./a.out
-// ==15182== Memcheck, a memory error detector
-// ==15182== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-// ==15182== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
-// ==15182== Command: ./a.out
-// ==15182== 
-// ==15182== 
-// ==15182== Process terminating with default action of signal 11 (SIGSEGV): dumping core
-// ==15182==  General Protection Fault
-// ==15182==    at 0x1091DC: _mm256_load_pd (avxintrin.h:862)
-// ==15182==    by 0x1091DC: f (test.c:6)
-// ==15182==    by 0x109232: main (test.c:12)
-// ==15182== 
-// ==15182== HEAP SUMMARY:
-// ==15182==     in use at exit: 33,256 bytes in 2 blocks
-// ==15182==   total heap usage: 2 allocs, 0 frees, 33,256 bytes allocated
-// ==15182== 
-// ==15182== LEAK SUMMARY:
-// ==15182==    definitely lost: 0 bytes in 0 blocks
-// ==15182==    indirectly lost: 0 bytes in 0 blocks
-// ==15182==      possibly lost: 0 bytes in 0 blocks
-// ==15182==    still reachable: 33,256 bytes in 2 blocks
-// ==15182==         suppressed: 0 bytes in 0 blocks
-// ==15182== Rerun with --leak-check=full to see details of leaked memory
-// ==15182== 
-// ==15182== For lists of detected and suppressed errors, rerun with: -s
-// ==15182== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
-// Segmentation fault

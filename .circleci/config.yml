@@ -37,7 +37,6 @@ jobs:
               libglib2.0-dev libglib2.0-0 \
               libgsl-dev                  \
               libplplot-dev
-              # libplplot16
 
       # Either git or ssh (required by git to clone through SSH) is not installed in the image. Falling back to CircleCI's native git client but the behavior may be different from official git. If this is an issue, please use an image that has official git and ssh installed.
       - checkout # github -> /root/project
