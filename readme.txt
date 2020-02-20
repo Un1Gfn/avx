@@ -25,15 +25,14 @@ https://sourceforge.net/projects/plplot/
 http://plplot.sourceforge.net/examples.php?demo=00&lbind=C
 
 
-export port=64537
-export ip=54.175.250.2
+export port=64535
+export ip=3.81.33.151
 proxychains ssh -p $port $ip
 
 # https://unix.stackexchange.com/questions/77127/rm-rf-all-files-and-all-hidden-files-without-error
 proxychains ssh -p $port $ip bash <<<'cd /root/project/; rm -rf ..?* .[!.]* *'; proxychains scp -rp -P $port /home/darren/avx/*.{c,h,sh} root@$ip:/root/project/
 
 proxychains scp -rp -P $port /home/darren/avx/run.c root@$ip:/root/project/
-
 proxychains scp -rp -P $port /home/darren/avx/main.c root@$ip:/root/project/
 
 gdb --args ./a.out run 0 1000 10

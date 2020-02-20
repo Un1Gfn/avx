@@ -125,6 +125,5 @@ void run(const char *fn,int xmin,int xmax,int xn){
   }
   fclose(f);
   f=NULL;
-  printf(filename);
-  printf("\n");
+  printf("%s\n",filename);
 }

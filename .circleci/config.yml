@@ -45,14 +45,11 @@ jobs:
       - run:
           name: Build and run
           command: | # runs in /root/project
-            # tree -aC ~
             ./clean.sh || true
             rm -fv result* || true
-            ./make.sh && env AVX=1 ./a.out run 0 1000 10
-            # ./make.sh && env AVX=1 ./a.out run 0 2000 20
-            # mkdir -v ~/result
-            # mv -v result* ~/result
-            # tree -aC ~
+            ./make.sh
+            env AVX=1 ./a.out run 0 1000 10
+            env AVX=1 ./a.out run 0 2000 20
             mkdir result
             mv -fv result_* result/ || true
 
