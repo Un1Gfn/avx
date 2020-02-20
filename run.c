@@ -128,17 +128,27 @@ void test(int n0){
 
 void run(const char *fn,int xmin,int xmax,int xn){
 
+  // double *H=calloc(4096,sizeof(double));
+  // __m256d c0 = _mm256_load_pd(H);
+  // free(H);
+  // test(0);
+  // test(0);
+  // test(0);
+  // test(0);
+
   strcpy(filename,fn);
   f=fopen(filename,"wb");
-  #define ceil(x) ((x+3)/4*4)
-  for(int x=ceil(xmin);x<=ceil(xmax);x+=ceil((xmax-xmin+1)/xn)){
-    // Record r=test(x);
-    Record r=(Record){};
-    test(x);
-    record_show(r);
-    fwrite(&r,sizeof(Record),1,f);
-    fflush(f);
+  for(int x=0;x<1;++x){
+    test(0);
   }
+  // #define ceil(x) ((x+3)/4*4)
+  // for(int x=ceil(xmin);x<=ceil(xmax);x+=ceil((xmax-xmin+1)/xn)){
+  //   // Record r=test(x);
+  //   Record r=(Record){};
+  //   record_show(r);
+  //   fwrite(&r,sizeof(Record),1,f);
+  //   fflush(f);
+  // }
   fclose(f);
   f=NULL;
   printf("%s\n",filename);
