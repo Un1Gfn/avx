@@ -1,3 +1,6 @@
+![screenshot](grim.png)
+
+```
 https://github.com/Un1Gfn/avx
 
 O(n^3)
@@ -47,5 +50,6 @@ print j
 print n
 
 malloc_usable_size()
+```
 
 
